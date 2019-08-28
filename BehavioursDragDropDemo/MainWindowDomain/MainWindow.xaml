@@ -1,0 +1,90 @@
+﻿<Window x:Class="BehavioursDragDropDemo.MainWindowDomain.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BehavioursDragDropDemo.MainWindowDomain"
+        xmlns:popper="clr-namespace:BehavioursDragDropDemo.DropCartItemPopupDomain"
+        xmlns:behave="clr-namespace:Framework"
+        mc:Ignorable="d"
+        d:DataContext="{Binding Source={x:Static local:MainWindowMockViewModel.MainWindowViewModelMockup}}"
+        Title="Drag and Drop with Behaviours Demo">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Exit" Command="{Binding CloseWindowCommand}"/>
+        </Menu>
+        <Label DockPanel.Dock="Top" Content="Drag and Drop items from the left listbox into the right listbox" FontSize="18" FontWeight="Bold"/>
+        <Label DockPanel.Dock="Top" Content="or use buttons -> and &lt;-" 
+               FontSize="18" FontWeight="Bold"/>
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <ListBox  Grid.Row="1"  Grid.Column="0"
+                  ItemsSource="{Binding StockCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                  SelectedItem="{Binding SelectedStockItem, UpdateSourceTrigger=PropertyChanged}"
+                  behave:MouseBehaviour.MouseMoveCommand="{Binding MouseMoveCommand}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock DataContext="{Binding}">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0}: {1} ({2}x)">
+                                    <Binding Path="ArticleId"/>
+                                    <Binding Path="Description"/>
+                                    <Binding Path="Quantity"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Grid.Row="1" Grid.Column="1">
+                <Button Content="->" Command="{Binding AddToCartCommand}"/>
+                <Button Content="&lt;-" Command="{Binding RemoveFromCartCommand}"/>
+            </StackPanel>
+            <Grid Grid.Row="1" Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="31*"/>
+                    <ColumnDefinition Width="70*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <popper:DropCartItemPopup Grid.Row="0" Grid.Column="0" 
+                                          DataContext="{Binding DropCartItemPopupVm}" Grid.ColumnSpan="2"/>
+                <ListBox Name="CartListBox"  
+                 Grid.Row="1" Grid.Column="0" 
+                 ItemsSource="{Binding CartCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                 SelectedItem="{Binding SelectedCartItem, UpdateSourceTrigger=PropertyChanged}"
+                 MinWidth="100"
+                 AllowDrop="True"
+                 behave:DragDropBehaviours.DropCommand="{Binding DropItemIntoCartCommand}"
+                 behave:DragDropBehaviours.DragOverCommand="{Binding DragOverCommand}"
+                 behave:DragDropBehaviours.DragEnterCommand="{Binding DragEnterCommand}" Grid.ColumnSpan="2">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock DataContext="{Binding}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0}: {1} ({2}x)">
+                                        <Binding Path="ArticleId"/>
+                                        <Binding Path="Description"/>
+                                        <Binding Path="Quantity"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Grid>
+    </DockPanel>
+</Window>
